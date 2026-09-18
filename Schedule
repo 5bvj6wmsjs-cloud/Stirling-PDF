@@ -1,0 +1,216 @@
+# Егер Google Colab қолдансаң, бірінші осыны іске қос:
+!pip install reportlab pillow -q
+
+from PIL import Image, ImageDraw, ImageFont
+from reportlab.pdfgen import canvas
+from reportlab.lib.utils import ImageReader
+
+# 📱 iPhone wallpaper өлшемі
+W, H = 1290, 2796
+
+img = Image.new("RGB", (W, H), "#F7F2F8")
+draw = ImageDraw.Draw(img)
+
+# Шрифт
+regular = ImageFont.truetype(
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 27
+)
+bold = ImageFont.truetype(
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 30
+)
+title = ImageFont.truetype(
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 52
+)
+
+# Header
+draw.rounded_rectangle(
+    (45, 45, W-45, 190),
+    radius=35,
+    fill="#EADDEC"
+)
+
+draw.text(
+    (W//2, 85),
+    "STUDY • WORK • IELTS • UNT",
+    font=title,
+    anchor="ma",
+    fill="#403344"
+)
+
+draw.text(
+    (W//2, 145),
+    "2 / 2 WORK CYCLE",
+    font=bold,
+    anchor="ma",
+    fill="#6B5870"
+)
+
+days = [
+
+("1-КҮН  •  ЖҰМЫС + LISTENING", [
+"05:45  Ояну • жуыну • таңғы ас",
+"06:20–06:45  Vocabulary — 15–20 сөз",
+"07:00–08:00  Жол + English Listening",
+"08:00–13:00  Мектеп / сабақ",
+"13:00–14:30  Homework + ДЖТ қайталау",
+"14:30–15:30  Жол / курсқа дайындық",
+"16:00–17:00  Ағылшын курсы",
+"17:00–18:30  Жол",
+"18:30–19:00  Тамақ + демалыс",
+"19:00–19:40  IELTS Listening — 1 section",
+"19:40–20:00  Қате анализі",
+"20:00–20:20  ДЖТ — 15 тест",
+"20:20–20:40  Мат. сауат — 10 есеп",
+"21:00–23:00  ЖҰМЫС",
+"23:00–00:25  Үйге жол + жуыну + дайындық",
+"00:25  ҰЙҚЫ"
+]),
+
+("2-КҮН  •  ЖҰМЫС + READING", [
+"05:45  Ояну • жуыну • таңғы ас",
+"06:20–06:45  Vocabulary — 15–20 сөз",
+"07:00–08:00  Жол + English Listening",
+"08:00–13:00  Мектеп / сабақ",
+"13:00–14:30  Homework",
+"14:30–15:00  Қаз. тарихы — 1 тақырып",
+"15:00–15:30  Жол",
+"16:00–17:00  Ағылшын курсы",
+"17:00–18:30  Жол",
+"18:30–19:00  Тамақ",
+"19:00–19:50  IELTS Reading — 1 passage",
+"19:50–20:10  Қате анализі",
+"20:10–20:30  ДЖТ — 15 тест",
+"20:30–20:50  Оқу сауат — 10 сұрақ",
+"21:00–23:00  ЖҰМЫС",
+"23:00–00:25  Үйге жол + жуыну + дайындық",
+"00:25  ҰЙҚЫ"
+]),
+
+("3-КҮН  •  ДЕМАЛЫС + BIG STUDY", [
+"07:30  Ояну + таңғы ас",
+"08:00–09:00  ДЖТ — жаңа тақырып",
+"09:20–10:00  ДЖТ — 30 тест",
+"10:00–10:30  Қателер анализі",
+"11:00–12:00  IELTS Reading — 1 passage",
+"12:00–12:30  Reading analysis",
+"12:30–13:30  Түскі ас + демалыс",
+"13:30–14:30  IELTS Writing Task 2",
+"14:30–15:00  Writing correction",
+"15:30–16:15  Мат. сауат",
+"16:15–16:45  Оқу сауат",
+"17:30–18:15  Қаз. тарихы",
+"18:15–18:45  Қаз. тарихы — тест",
+"19:30–20:00  Vocabulary — 30 сөз",
+"20:00–20:30  Speaking",
+"20:30–21:00  Shadowing",
+"21:00–22:30  Демалыс + келесі күнге дайындық",
+"22:30  ҰЙҚЫ"
+]),
+
+("4-КҮН  •  ДЕМАЛЫС + MOCK", [
+"07:30  Ояну + таңғы ас",
+"08:30–11:00  UNT MINI MOCK",
+"11:00–11:30  Үзіліс",
+"11:30–12:30  MOCK қателерін талдау",
+"12:30–13:30  Түскі ас",
+"13:30–14:30  IELTS Listening — full test",
+"14:30–15:00  Listening analysis",
+"15:30–16:30  IELTS Reading — full test",
+"16:30–17:00  Reading analysis",
+"17:00–18:00  Демалыс",
+"18:00–18:40  ДЖТ — қиын тақырыптар",
+"18:40–19:10  Қаз. тарихы",
+"19:10–19:40  Мат. сауат",
+"20:30–21:00  Апталық Vocabulary",
+"21:00–21:20  Speaking",
+"21:20–21:40  Келесі 4 күн жоспары",
+"21:40–22:30  Демалыс",
+"22:30  ҰЙҚЫ"
+])
+]
+
+# Карточкалар
+card_y = 220
+card_h = 605
+gap = 18
+
+for i, (header, lines) in enumerate(days):
+
+    y = card_y + i * (card_h + gap)
+
+    # Card
+    draw.rounded_rectangle(
+        (45, y, W-45, y+card_h),
+        radius=30,
+        fill="#FFFFFF",
+        outline="#D8C7DC",
+        width=3
+    )
+
+    # Header
+    draw.rounded_rectangle(
+        (65, y+18, W-65, y+82),
+        radius=18,
+        fill="#EADDEC"
+    )
+
+    draw.text(
+        (W//2, y+50),
+        header,
+        font=bold,
+        anchor="mm",
+        fill="#453548"
+    )
+
+    # Tasks
+    yy = y + 105
+
+    for line in lines:
+
+        draw.text(
+            (80, yy),
+            line,
+            font=regular,
+            fill="#4C4650"
+        )
+
+        yy += 28
+
+
+# Footer
+draw.rounded_rectangle(
+    (55, H-125, W-55, H-50),
+    radius=22,
+    fill="#EADDEC"
+)
+
+draw.text(
+    (W//2, H-87),
+    "NO ZERO DAYS  •  CONSISTENCY > PERFECTION",
+    font=bold,
+    anchor="mm",
+    fill="#4B3B50"
+)
+
+
+# 💾 PNG — телефонға обой
+png_file = "study_schedule_wallpaper.png"
+img.save(png_file, quality=100)
+
+
+# 📄 PDF
+pdf_file = "study_schedule_wallpaper.pdf"
+
+c = canvas.Canvas(pdf_file, pagesize=(W, H))
+c.drawImage(
+    ImageReader(img),
+    0,
+    0,
+    width=W,
+    height=H
+)
+c.save()
+
+print("✅ ДАЙЫН!")
+print("📱 PNG:", png_file)
+print("📄 PDF:", pdf_file)
